@@ -16,12 +16,12 @@ Suas respostas devem:
 3. Ser direto, amigável e dar feedbacks rápidos.
 """
 
-model = genai.GenerativeModel(
-    model_name="gemini-1.5-pro",
-    system_instruction=INSTRUCAO_SISTEMA
-)
+model = genai.GenerativeModel('gemini-pro')
 
-chat = model.start_chat(history=[])
+chat = model.start_chat(history=[
+    {"role": "user", "parts": [INSTRUCAO_SISTEMA]},
+    {"role": "model", "parts": ["Pode deixar, parça! Tô pronto pra ajudar a galera de Santarém. Manda a dúvida!"]}
+])
 
 @app.route('/api/chat', methods=['POST'])
 def process_chat():
