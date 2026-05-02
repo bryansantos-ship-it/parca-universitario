@@ -17,7 +17,7 @@ Suas respostas devem:
 """
 
 model = genai.GenerativeModel(
-    model_name="gemini-1.5-flash",
+    model_name="gemini-1.5-pro",
     system_instruction=INSTRUCAO_SISTEMA
 )
 
