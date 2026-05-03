@@ -8,13 +8,13 @@ CORS(app)
 
 genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
 print("--- MODELOS LIBERADOS PELO GOOGLE ---")
-    try:
-        for m in genai.list_models():
-            if 'generateContent' in m.supported_generation_methods:
-                print(m.name)
-    except Exception as e:
-        print(f"Erro ao listar modelos: {e}")
-    print("-------------------------------------")
+try:
+    for m in genai.list_models():
+        if 'generateContent' in m.supported_generation_methods:
+            print(m.name)
+except Exception as e:
+    print(f"Erro ao listar modelos: {e}")
+print("-------------------------------------")
 INSTRUCAO_SISTEMA = """
 Você é o 'Parça Universitário', um chatbot empático e informal focado em ajudar estudantes do ensino médio de Santarém (Pará) a escolherem cursos de ensino superior.
 Suas respostas devem:
