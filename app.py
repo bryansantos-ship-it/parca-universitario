@@ -16,7 +16,7 @@ Suas respostas devem:
 3. Ser direto, amigável e dar feedbacks rápidos.
 """
 
-model = genai.GenerativeModel('gemini-2.5-flash')
+model = genai.GenerativeModel('gemini-2.5-pro')
 
 chat = model.start_chat(history=[
     {"role": "user", "parts": [INSTRUCAO_SISTEMA]},
