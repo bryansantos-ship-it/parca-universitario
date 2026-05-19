@@ -1,44 +1,47 @@
+import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import google.generativeai as genai
-import os
+from groq import Groq
 
 app = Flask(__name__)
 CORS(app)
 
-genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
-
-INSTRUCAO_SISTEMA = """
-Você é o 'Parça Universitário', um chatbot empático e informal focado em ajudar estudantes do ensino médio de Santarém (Pará) a escolherem cursos de ensino superior.
-Suas respostas devem:
-1. Usar linguagem jovem, gírias leves da região e ser muito acessível. Sem jargões acadêmicos.
-2. Fornecer informações sobre cursos, localização de campi e mensalidades de Santarém.
-3. Ser direto, amigável e dar feedbacks rápidos.
-"""
-
-model = genai.GenerativeModel('gemini-2.5-pro')
-
-chat = model.start_chat(history=[
-    {"role": "user", "parts": [INSTRUCAO_SISTEMA]},
-    {"role": "model", "parts": ["Pode deixar, parça! Tô pronto pra ajudar a galera de Santarém. Manda a dúvida!"]}
-])
+# Inicializa o cliente da Groq puxando a chave do Render
+client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
 @app.route('/api/chat', methods=['POST'])
-def process_chat():
-    data = request.get_json()
-    user_message = data.get('message')
+def chat():
+    data = request.json
+    mensagem_usuario = data.get('message')
 
-    if not user_message:
-        return jsonify({"error": "Mensagem vazia"}), 400
+    if not mensagem_usuario:
+        return jsonify({'reply': 'Mensagem vazia!'}), 400
 
     try:
-        response = chat.send_message(user_message)
-        return jsonify({"reply": response.text})
+        # Chamada para a API da Groq rodando o Llama 3
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "system",
+                    "content": "Você é o Parça Universitário, um assistente virtual focado em ajudar estudantes universitários. Responda de forma amigável e direta em português brasileiro."
+                },
+                {
+                    "role": "user",
+                    "content": mensagem_usuario,
+                }
+            ],
+            model="llama3-8b-8192", 
+            temperature=0.7,
+            max_tokens=1024,
+        )
+        
+        # Extrai a resposta
+        resposta = chat_completion.choices[0].message.content
+        return jsonify({'reply': resposta})
 
     except Exception as e:
-        print(f"Erro na IA: {e}")
-        return jsonify({"reply": "Foi mal, parça! Meu sistema deu uma travada. Manda de novo?"}), 500
+        print(f"Erro na Groq: {e}")
+        return jsonify({'reply': 'Putz, meu cérebro deu tela azul. Tenta de novo?'}), 500
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=5000)
